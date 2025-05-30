@@ -1,0 +1,16 @@
+{
+  "name": "gemma-namer",
+  "version": "0.1.0",
+  "description": "Gemma Namer: Rename similar files using a local LLM (Ollama, Msty, LM Studio)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^29.2.0",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^24.6.0"
+  }
+}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gemma Namer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #b71c1c 0%, #cfd8dc 100%);
+      color: #b71c1c;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #b71c1c;
+      color: #ececec;
+      padding: 1rem;
+      text-align: center;
+      font-size: 2rem;
+      letter-spacing: 2px;
+      box-shadow: 0 2px 8px #8882;
+    }
+    .container {
+      margin: 2rem auto;
+      padding: 2rem;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px #b71c1c33;
+      max-width: 600px;
+    }
+    button {
+      background: #b71c1c;
+      color: #fff;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #c62828;
+    }
+    .file-list {
+      margin-top: 1rem;
+      max-height: 300px;
+      overflow: auto;
+      border: 1px solid #cfd8dc;
+      border-radius: 8px;
+      background: #fafbfc;
+    }
+    .file-item {
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid #eee;
+      color: #333;
+    }
+    .file-item:last-child {
+      border-bottom: none;
+    }
+    .footer {
+      margin-top: 2rem;
+      text-align: center;
+      color: #b71c1c;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <header>Gemma Namer</header>
+  <div class="container">
+    <button id="pickFolderBtn">Pick Folder</button>
+    <div id="folderPath"></div>
+    <div class="file-list" id="fileList"></div>
+    <div class="footer">Powered by your local LLM · Red & Silver Theme</div>
+  </div>
+  <script src="renderer.js"></script>
+</body>
+</html>
