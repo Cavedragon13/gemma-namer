@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+httpx
+python-multipart
+pillow
+rapidfuzz
+gradio
+openai>=1.0.0
+requests
+python-dotenv
