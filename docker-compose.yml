@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # Ollama - Local LLM Server
+  ollama:
+    image: ollama/ollama:latest
+    container_name: gemma-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./models:/models  # Optional: pre-downloaded models
+    environment:
+      - OLLAMA_ORIGINS=*
+      - OLLAMA_HOST=0.0.0.0:11434
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - gemma-network
+
+  # Local Image Renamer - Python Web App
+  image-renamer:
+    build:
+      context: "./Local Image Renamer"
+      dockerfile: Dockerfile
+    container_name: gemma-image-renamer
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./uploads:/app/uploads        # Input images
+      - ./output:/app/output          # Processed images
+      - ./generated:/app/generated    # AI-generated images
+      - image_db:/app/database        # SQLite database persistence
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - GRADIO_SERVER_NAME=0.0.0.0
+      - GRADIO_SERVER_PORT=5000
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - gemma-network
+
+  # Electron Desktop App (Development/VNC Access)
+  electron-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.electron
+    container_name: gemma-electron
+    ports:
+      - "6080:6080"  # VNC web interface
+    volumes:
+      - ./files:/app/files          # File processing directory
+      - electron_data:/app/data     # App data persistence
+    environment:
+      - DISPLAY=:1
+      - VNC_PASSWORD=gemma123
+      - RESOLUTION=1024x768
+    depends_on:
+      - ollama
+    networks:
+      - gemma-network
+    profiles:
+      - desktop  # Optional service - run with --profile desktop
+
+volumes:
+  ollama_data:
+    driver: local
+  image_db:
+    driver: local
+  electron_data:
+    driver: local
+
+networks:
+  gemma-network:
+    driver: bridge

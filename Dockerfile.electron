@@ -1,0 +1,74 @@
+# Electron Desktop App - Docker Container with VNC
+# For development and testing purposes
+FROM node:18-bookworm
+
+# Install system dependencies for Electron and VNC
+RUN apt-get update && apt-get install -y \
+    # Electron dependencies
+    libasound2-dev \
+    libatk-bridge2.0-0 \
+    libatspi2.0-0 \
+    libdrm2 \
+    libgtk-3-0 \
+    libgtk-4-1 \
+    libnss3 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libxss1 \
+    # VNC Server and desktop environment
+    xvfb \
+    x11vnc \
+    xfce4 \
+    xfce4-terminal \
+    # NoVNC for web-based access
+    novnc \
+    websockify \
+    # Utilities
+    curl \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install Node.js dependencies
+RUN npm ci --only=production
+
+# Copy application code
+COPY . .
+
+# Create directories
+RUN mkdir -p /app/files /app/data
+
+# Set up VNC environment
+ENV DISPLAY=:1
+ENV VNC_PASSWORD=gemma123
+ENV RESOLUTION=1024x768
+
+# Create VNC setup script
+RUN echo '#!/bin/bash\n\
+export DISPLAY=:1\n\
+Xvfb :1 -screen 0 ${RESOLUTION}x24 &\n\
+sleep 2\n\
+startxfce4 &\n\
+sleep 3\n\
+x11vnc -display :1 -nopw -forever -shared -rfbport 5901 &\n\
+websockify --web /usr/share/novnc 6080 localhost:5901 &\n\
+sleep 2\n\
+npm start\n\
+' > /app/start-vnc.sh && chmod +x /app/start-vnc.sh
+
+# Expose VNC ports
+EXPOSE 5901 6080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:6080 || exit 1
+
+# Run with VNC
+CMD ["/app/start-vnc.sh"]

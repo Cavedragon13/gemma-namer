@@ -24,6 +24,22 @@ npm run build:win
 npm run build:linux
 ```
 
+### Docker Deployment
+
+```bash
+# Start web application with Ollama
+docker-compose up -d
+
+# Initialize AI models (first time)
+docker-compose exec ollama bash -c "./ollama-init.sh"
+
+# Start with desktop app (VNC access)
+docker-compose --profile desktop up -d
+
+# Access web interface: http://localhost:5000
+# Access VNC desktop: http://localhost:6080
+```
+
 ### Local Image Renamer (Python Web App)
 
 ```bash
@@ -173,10 +189,33 @@ The application automatically detects available LLM backends by testing endpoint
 - **LLM Calls**: Sequential API calls to local models (could be parallelized)
 - **UI Responsiveness**: Synchronous file operations may block UI
 
+## Docker Architecture
+
+### Container Services
+- **ollama**: Local AI model server with persistent model storage
+- **image-renamer**: Python FastAPI web application with Gradio UI
+- **electron-app**: Desktop application accessible via VNC (optional)
+
+### Data Persistence
+- `ollama_data`: AI models and configuration
+- `image_db`: SQLite processing history
+- `electron_data`: Desktop app user data
+
+### Networking
+All services communicate via Docker bridge network with health checks and automatic restarts.
+
 ## Development Workflow
 
+### Local Development
 1. **Setup**: Install Node.js dependencies and chosen LLM backend
 2. **Development**: Use `npm start` for live development with DevTools
 3. **Testing**: Manual testing with various folder structures and file types
 4. **Building**: Use electron-builder for cross-platform distribution
 5. **Distribution**: DMG (macOS), MSI (Windows), AppImage (Linux)
+
+### Docker Development
+1. **Setup**: `docker-compose up -d` starts all services
+2. **Development**: Edit code, containers auto-restart on changes
+3. **Testing**: Access web UI at localhost:5000, VNC at localhost:6080
+4. **Debugging**: `docker-compose logs -f` for real-time logging
+5. **Distribution**: Build production images with `docker-compose build`
